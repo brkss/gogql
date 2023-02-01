@@ -3,7 +3,7 @@
 DB_CONTAINER = postgres12-gogql
 DB_USERNAME = root
 DB_PASSWORD = root
-DB_DBNAME = gogql 
+DB_DBNAME = gogql
 DB_PORT = 5432
 DB_HOST = localhost
 
