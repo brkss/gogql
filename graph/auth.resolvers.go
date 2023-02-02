@@ -18,7 +18,32 @@ import (
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input *model.LoginUserInput) (*model.AuthResponse, error) {
-	panic(fmt.Errorf("not implemented: Login - login"))
+
+	user, err := r.Store.GetUserByEmail(ctx, input.Email)
+	if err != nil {
+		return nil, &gqlerror.Error{
+			Message: "Something went wrong !",
+		}
+	}
+	err = utils.VerifyPassword(user.Password, input.Password)
+	if err != nil {
+		return nil, &gqlerror.Error{
+			Message: "Invalid Password !",
+		}
+	}
+
+	token, err := r.Maker.CreateToken(user.ID, r.Config.TokenDuration)
+	if err != nil {
+		return nil, &gqlerror.Error{
+			Message: "Cannot create token !",
+		}
+	}
+
+	return &model.AuthResponse{
+		Status: false,
+		Token: &token,
+	}, nil
+
 }
 
 // Register is the resolver for the register field.
