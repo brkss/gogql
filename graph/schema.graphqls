@@ -2,6 +2,7 @@
 #
 # https://gqlgen.com/getting-started/
 
+directive @binding(constraint: String!) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
 
 type Query {
 	ping: String!	

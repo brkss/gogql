@@ -10,7 +10,7 @@ import (
 
 // Ping is the resolver for the ping field.
 func (r *queryResolver) Ping(ctx context.Context) (string, error) {
-	return "Pong", nil 
+	return "Pong", nil
 }
 
 // Query returns QueryResolver implementation.

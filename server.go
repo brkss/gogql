@@ -7,6 +7,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/brkss/gogql/directive"
 	"github.com/brkss/gogql/graph"
 )
 
@@ -18,7 +19,10 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+	c := graph.Config{Resolvers: &graph.Resolver{}}
+	c.Directives.Binding = directive.Binding
+
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(c))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
