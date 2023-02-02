@@ -36,14 +36,24 @@ func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterUs
 		Email: input.Email,
 		Password: hashedPassword,
 	}
-	_, err = r.Store.CreateUser(ctx, arg)
+	user, err := r.Store.CreateUser(ctx, arg)
 	if err != nil {
 		return nil, &gqlerror.Error{
-			Message: "Cannot create user !",
+			Message: "cannot create user !",
 		}
 	}
 	
-	return nil, nil
+	token, err := r.Maker.CreateToken(user.ID, r.Config.TokenDuration) 
+	if err != nil {
+		return nil, &gqlerror.Error{
+			Message: "cannot create token !",
+		}
+	}
+
+	return &model.AuthResponse{
+		Status: true,
+		Token: &token,
+	}, nil
 }
 
 // Me is the resolver for the Me field.
