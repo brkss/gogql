@@ -8,8 +8,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/99designs/gqlgen/graphql"
-	db "github.com/brkss/go-auth/db/sqlc"
+	//"github.com/99designs/gqlgen/graphql"
+	db "github.com/brkss/gogql/db/sqlc"
 	"github.com/brkss/gogql/graph/model"
 	"github.com/brkss/gogql/utils"
 	"github.com/google/uuid"
@@ -36,14 +36,14 @@ func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterUs
 		Email: input.Email,
 		Password: hashedPassword,
 	}
-	user, err := r.Store.CreateUser(ctx, arg)
+	_, err = r.Store.CreateUser(ctx, arg)
 	if err != nil {
 		return nil, &gqlerror.Error{
 			Message: "Cannot create user !",
 		}
 	}
 	
-
+	return nil, nil
 }
 
 // Me is the resolver for the Me field.

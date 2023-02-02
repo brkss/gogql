@@ -9,6 +9,7 @@ import (
 
 var (
 	ErrExpiredToken = errors.New("This token is expired") 
+	ErrInvalidToken = errors.New("Invalid Token !")
 )
 
 

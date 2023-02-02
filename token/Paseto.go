@@ -39,7 +39,11 @@ func (p *PasetoMaker)VerifyToken(token string)(*Payload, error){
 	var payload Payload
 	err := p.Paseto.Decrypt(token, []byte(p.SymetricKey), &payload, nil)
 	if err != nil {
-		return nil, err
+		return nil, ErrInvalidToken
+	}
+	err = payload.Valid()
+	if err != nil {
+		return nil, err;
 	}
 	return &payload, nil
 }
