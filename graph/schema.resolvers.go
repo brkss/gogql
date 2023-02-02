@@ -6,12 +6,11 @@ package graph
 
 import (
 	"context"
-	"fmt"
 )
 
 // Ping is the resolver for the ping field.
 func (r *queryResolver) Ping(ctx context.Context) (string, error) {
-	panic(fmt.Errorf("not implemented: Ping - ping"))
+	return "Pong", nil 
 }
 
 // Query returns QueryResolver implementation.
