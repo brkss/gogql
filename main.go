@@ -1,8 +1,7 @@
 package main
 
 import (
-	//"database/sql"
-	"fmt"
+	"database/sql"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +11,7 @@ import (
 	"github.com/brkss/gogql/directive"
 	"github.com/brkss/gogql/graph"
 	"github.com/brkss/gogql/utils"
+	_ "github.com/lib/pq"
 )
 
 const defaultPort = "8080"
@@ -27,8 +27,9 @@ func main() {
 		log.Fatal("cannot load config : ", err);
 	}
 
-	//con, err := sql.Open(config.DBDriver, config.DBSource)
-	fmt.Printf("config : %+v\n", config)
+	con, err := sql.Open(config.DBDriver, config.DBSource)
+
+
 
 	c := graph.Config{Resolvers: &graph.Resolver{}}
 	c.Directives.Binding = directive.Binding
