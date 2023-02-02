@@ -11,9 +11,7 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-
 	Store 	db.Store
 	Config 	*utils.Config
 	Maker 	token.Maker
-
 }

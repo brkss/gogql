@@ -11,6 +11,7 @@ import (
 	db "github.com/brkss/gogql/db/sqlc"
 	"github.com/brkss/gogql/directive"
 	"github.com/brkss/gogql/graph"
+	"github.com/brkss/gogql/token"
 	"github.com/brkss/gogql/utils"
 	_ "github.com/lib/pq"
 )
@@ -33,11 +34,16 @@ func main() {
 		log.Fatal("cannot connect to database : ", err)
 	}
 	store := db.NewStore(con)
-	
+
+	tokenMaker, err := token.NewPasetoMaker(config.TokenSymtrictKey)
+	if err != nil {
+		log.Fatal("cannot create token maker : ", err)
+	}
 
 	c := graph.Config{Resolvers: &graph.Resolver{
 		Config: config,
 		Store: store,
+		Maker: tokenMaker,
 	}}
 
 	c.Directives.Binding = directive.Binding
