@@ -1,0 +1,40 @@
+
+
+# Objects 
+type User {
+	id: ID!
+	name: String!
+	email: String!
+}
+
+# Inputs
+
+input LoginUserInput {
+	email: String!
+	password: String!
+} 
+
+input RegisterUserInput {
+	name: String!
+	email: String!
+	password: String!
+}
+
+# Responses
+
+type AuthResponse {
+	status: Boolean!
+	message: String
+	token: String
+} 
+
+extend type Query {
+	Me: User!	
+}
+
+extend type Mutation {
+	login(input: LoginUserInput): AuthResponse!
+	register(input: RegisterUserInput): AuthResponse!
+}
+
+
