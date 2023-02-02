@@ -8,7 +8,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/99designs/gqlgen/graphql"
+	db "github.com/brkss/go-auth/db/sqlc"
 	"github.com/brkss/gogql/graph/model"
+	"github.com/brkss/gogql/utils"
+	"github.com/google/uuid"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // Login is the resolver for the login field.
@@ -18,7 +23,27 @@ func (r *mutationResolver) Login(ctx context.Context, input *model.LoginUserInpu
 
 // Register is the resolver for the register field.
 func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterUserInput) (*model.AuthResponse, error) {
-	panic(fmt.Errorf("not implemented: Register - register"))
+
+	hashedPassword, err := utils.HashPassword(input.Password)
+	if err != nil {
+		return nil, &gqlerror.Error{
+			Message: "Cannot hasdh password !",
+		}
+	}
+	arg := db.CreateUserParams{
+		ID: uuid.New().String(),
+		Name: input.Name,
+		Email: input.Email,
+		Password: hashedPassword,
+	}
+	user, err := r.Store.CreateUser(ctx, arg)
+	if err != nil {
+		return nil, &gqlerror.Error{
+			Message: "Cannot create user !",
+		}
+	}
+	
+
 }
 
 // Me is the resolver for the Me field.

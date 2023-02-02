@@ -8,6 +8,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	db "github.com/brkss/gogql/db/sqlc"
 	"github.com/brkss/gogql/directive"
 	"github.com/brkss/gogql/graph"
 	"github.com/brkss/gogql/utils"
@@ -28,10 +29,17 @@ func main() {
 	}
 
 	con, err := sql.Open(config.DBDriver, config.DBSource)
+	if err != nil {
+		log.Fatal("cannot connect to database : ", err)
+	}
+	store := db.NewStore(con)
+	
 
+	c := graph.Config{Resolvers: &graph.Resolver{
+		Config: config,
+		Store: store,
+	}}
 
-
-	c := graph.Config{Resolvers: &graph.Resolver{}}
 	c.Directives.Binding = directive.Binding
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(c))
