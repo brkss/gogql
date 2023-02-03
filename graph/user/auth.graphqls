@@ -29,7 +29,7 @@ type AuthResponse {
 } 
 
 extend type Query {
-	Me: User!	
+	Me: User! @auth()
 }
 
 extend type Mutation {

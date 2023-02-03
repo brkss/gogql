@@ -11,8 +11,10 @@ import (
 	db "github.com/brkss/gogql/db/sqlc"
 	"github.com/brkss/gogql/directive"
 	"github.com/brkss/gogql/graph"
+	"github.com/brkss/gogql/middleware"
 	"github.com/brkss/gogql/token"
 	"github.com/brkss/gogql/utils"
+	"github.com/go-chi/chi/v5"
 	_ "github.com/lib/pq"
 )
 
@@ -40,6 +42,9 @@ func main() {
 		log.Fatal("cannot create token maker : ", err)
 	}
 
+	router := chi.NewRouter()
+	router.Use(middleware.AuthMiddleware(tokenMaker))
+
 	c := graph.Config{Resolvers: &graph.Resolver{
 		Config: config,
 		Store: store,
@@ -50,9 +55,9 @@ func main() {
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(c))
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	router.Handle("/query", srv)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }

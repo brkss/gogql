@@ -8,7 +8,6 @@ import (
 	"context"
 	"fmt"
 
-	//"github.com/99designs/gqlgen/graphql"
 	db "github.com/brkss/gogql/db/sqlc"
 	"github.com/brkss/gogql/graph/model"
 	"github.com/brkss/gogql/utils"
@@ -18,7 +17,6 @@ import (
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input *model.LoginUserInput) (*model.AuthResponse, error) {
-
 	user, err := r.Store.GetUserByEmail(ctx, input.Email)
 	if err != nil {
 		return nil, &gqlerror.Error{
@@ -41,14 +39,12 @@ func (r *mutationResolver) Login(ctx context.Context, input *model.LoginUserInpu
 
 	return &model.AuthResponse{
 		Status: false,
-		Token: &token,
+		Token:  &token,
 	}, nil
-
 }
 
 // Register is the resolver for the register field.
 func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterUserInput) (*model.AuthResponse, error) {
-
 	hashedPassword, err := utils.HashPassword(input.Password)
 	if err != nil {
 		return nil, &gqlerror.Error{
@@ -56,9 +52,9 @@ func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterUs
 		}
 	}
 	arg := db.CreateUserParams{
-		ID: uuid.New().String(),
-		Name: input.Name,
-		Email: input.Email,
+		ID:       uuid.New().String(),
+		Name:     input.Name,
+		Email:    input.Email,
 		Password: hashedPassword,
 	}
 	user, err := r.Store.CreateUser(ctx, arg)
@@ -67,8 +63,8 @@ func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterUs
 			Message: "cannot create user !",
 		}
 	}
-	
-	token, err := r.Maker.CreateToken(user.ID, r.Config.TokenDuration) 
+
+	token, err := r.Maker.CreateToken(user.ID, r.Config.TokenDuration)
 	if err != nil {
 		return nil, &gqlerror.Error{
 			Message: "cannot create token !",
@@ -77,7 +73,7 @@ func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterUs
 
 	return &model.AuthResponse{
 		Status: true,
-		Token: &token,
+		Token:  &token,
 	}, nil
 }
 

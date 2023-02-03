@@ -41,6 +41,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	Auth    func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 	Binding func(ctx context.Context, obj interface{}, next graphql.Resolver, constraint string) (res interface{}, err error)
 }
 
@@ -666,8 +667,28 @@ func (ec *executionContext) _Query_Me(ctx context.Context, field graphql.Collect
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Me(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Me(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/brkss/gogql/graph/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2792,7 +2813,7 @@ func (ec *executionContext) unmarshalInputRegisterUserInput(ctx context.Context,
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
 			directive1 := func(ctx context.Context) (interface{}, error) {
-				constraint, err := ec.unmarshalNString2string(ctx, "required")
+				constraint, err := ec.unmarshalNString2string(ctx, "required,min=5")
 				if err != nil {
 					return nil, err
 				}
@@ -2844,7 +2865,7 @@ func (ec *executionContext) unmarshalInputRegisterUserInput(ctx context.Context,
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
 			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
 			directive1 := func(ctx context.Context) (interface{}, error) {
-				constraint, err := ec.unmarshalNString2string(ctx, "required")
+				constraint, err := ec.unmarshalNString2string(ctx, "required,min=5")
 				if err != nil {
 					return nil, err
 				}
