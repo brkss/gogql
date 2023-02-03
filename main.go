@@ -52,6 +52,7 @@ func main() {
 	}}
 
 	c.Directives.Binding = directive.Binding
+	c.Directives.Auth = directive.Auth
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(c))
 
