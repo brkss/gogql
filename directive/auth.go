@@ -2,7 +2,6 @@ package directive
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/brkss/gogql/middleware"

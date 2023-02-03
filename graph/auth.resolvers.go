@@ -6,10 +6,10 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	db "github.com/brkss/gogql/db/sqlc"
 	"github.com/brkss/gogql/graph/model"
+	"github.com/brkss/gogql/middleware"
 	"github.com/brkss/gogql/utils"
 	"github.com/google/uuid"
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -79,8 +79,29 @@ func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterUs
 
 // Me is the resolver for the Me field.
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: Me - Me"))
+
+	payload := middleware.GetPayload(ctx)
+	if payload == nil {
+		return nil, &gqlerror.Error{
+			Message: "Access Denied",
+		}
+	}
+	user, err := r.Store.GetUser(ctx, payload.UserID)
+	if err != nil {
+		return nil, &gqlerror.Error{
+			Message: "Something went wrong !",
+		}
+	}
+	
+	response := model.User {
+		ID: user.ID,
+		Name: user.Name,
+		Email: user.Email,
+	}
+	
+	return &response, nil
 }
+
 
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
