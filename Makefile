@@ -45,5 +45,8 @@ gen:
 server:
 	go run .	
 
+deploy:
+	docker compose up --force-recreate --build
+
 .PHONY:
 	gen server test sqlc migrateup migratedown dropdb createdb postgres startdb stopdb all
