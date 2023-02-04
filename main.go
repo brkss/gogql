@@ -44,6 +44,8 @@ func main() {
 
 	router := chi.NewRouter()
 	router.Use(middleware.AuthMiddleware(tokenMaker))
+	
+	router.Post("/refresh-token", token.RefreshToken)
 
 	c := graph.Config{Resolvers: &graph.Resolver{
 		Config: config,

@@ -53,7 +53,7 @@ func AuthMiddleware(maker token.Maker) func(http.Handler) http.Handler {
 			ctx := context.WithValue(r.Context(), AuthorizationPayloadKey, payload)
 			r = r.WithContext(ctx)
 			next.ServeHTTP(w, r)
-
+			fmt.Printf("after middleware next !")	
 		})
 	} 
 }
