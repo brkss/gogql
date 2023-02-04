@@ -8,6 +8,15 @@ import (
 	"time"
 )
 
+type Session struct {
+	ID        string    `json:"id"`
+	UserID    string    `json:"user_id"`
+	Token     string    `json:"token"`
+	Blocked   bool      `json:"blocked"`
+	ExpiredAt time.Time `json:"expired_at"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type User struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`

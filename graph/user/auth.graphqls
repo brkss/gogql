@@ -25,8 +25,12 @@ input RegisterUserInput {
 type AuthResponse {
 	status: Boolean!
 	message: String
-	token: String
-} 
+	access_token: String
+	refresh_token: String
+	access_token_expires_at: String
+	refresh_token_expires_at: String
+}
+
 
 extend type Query {
 	Me: User! @auth()

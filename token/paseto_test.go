@@ -24,17 +24,19 @@ func TestPasetoToken(t *testing.T){
 	require.NoError(t, err)
 	require.NotEmpty(t, maker)
 
-	token, err := maker.CreateToken(userId, duration)
+	token, payload, err := maker.CreateToken(userId, duration)
 	require.NoError(t, err)
 	require.NotEmpty(t, token)
-	
-	payload, err := maker.VerifyToken(token) 
+	require.NotEmpty(t, payload)
+
+	payload, err = maker.VerifyToken(token) 
 	require.NoError(t, err)
 	require.NotEmpty(t, payload)
 
-	expiredToken, err := maker.CreateToken(userId, -duration)
+	expiredToken, payload, err := maker.CreateToken(userId, -duration)
 	require.NoError(t, err)
 	require.NotEmpty(t, expiredToken)
+	require.NotEmpty(t, payload)
 
 	_, err = maker.VerifyToken(expiredToken)
 	require.Error(t, err)

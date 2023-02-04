@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -35,6 +36,7 @@ func main() {
 	if err != nil {
 		log.Fatal("cannot connect to database : ", err)
 	}
+	fmt.Print("con : ", con)
 	store := db.NewStore(con)
 
 	tokenMaker, err := token.NewPasetoMaker(config.TokenSymtrictKey)
@@ -45,7 +47,6 @@ func main() {
 	router := chi.NewRouter()
 	router.Use(middleware.AuthMiddleware(tokenMaker))
 	
-	router.Post("/refresh-token", token.RefreshToken)
 
 	c := graph.Config{Resolvers: &graph.Resolver{
 		Config: config,

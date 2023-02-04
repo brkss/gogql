@@ -30,16 +30,43 @@ func (r *mutationResolver) Login(ctx context.Context, input *model.LoginUserInpu
 		}
 	}
 
-	token, err := r.Maker.CreateToken(user.ID, r.Config.TokenDuration)
+	token, accessPayload, err := r.Maker.CreateToken(user.ID, r.Config.TokenDuration)
 	if err != nil {
 		return nil, &gqlerror.Error{
 			Message: "Cannot create token !",
 		}
 	}
 
+	refreshToken, refreshPayload, err := r.Maker.CreateToken(user.ID, r.Config.RefreshTokenDuration)
+	if err != nil {
+		return nil, &gqlerror.Error{
+			Message: "Cannot create refresh token !",
+		}
+	}
+
+	// create session !
+	_, err = r.Store.CreateSession(ctx, db.CreateSessionParams{
+		ID: refreshPayload.ID,
+		UserID: user.ID,
+		Token: refreshToken,
+		ExpiredAt: refreshPayload.ExpireAt,
+		Blocked: false,	
+	})
+	if err != nil {
+		return nil, &gqlerror.Error{
+			Message: "cannot create refresh token !",
+		}
+	}
+
+	ac_exp := accessPayload.ExpireAt.String()
+	rf_exp := refreshPayload.ExpireAt.String()
+
 	return &model.AuthResponse{
-		Status: false,
-		Token:  &token,
+		Status:  false,
+		AccessToken: &token,
+		RefreshToken: &refreshToken,
+		RefreshTokenExpiresAt: &rf_exp,
+		AccessTokenExpiresAt: &ac_exp,
 	}, nil
 }
 
@@ -64,22 +91,48 @@ func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterUs
 		}
 	}
 
-	token, err := r.Maker.CreateToken(user.ID, r.Config.TokenDuration)
+	token, accessPayload, err := r.Maker.CreateToken(user.ID, r.Config.TokenDuration)
 	if err != nil {
 		return nil, &gqlerror.Error{
-			Message: "cannot create token !",
+			Message: "Cannot create token !",
 		}
 	}
 
+	refreshToken, refreshPayload, err := r.Maker.CreateToken(user.ID, r.Config.RefreshTokenDuration)
+	if err != nil {
+		return nil, &gqlerror.Error{
+			Message: "Cannot create refresh token !",
+		}
+	}
+
+	// create session !
+	_, err = r.Store.CreateSession(ctx, db.CreateSessionParams{
+		ID: refreshPayload.ID,
+		UserID: user.ID,
+		Token: refreshToken,
+		ExpiredAt: refreshPayload.ExpireAt,
+		Blocked: false,	
+	})
+	if err != nil {
+		return nil, &gqlerror.Error{
+			Message: "cannot create refresh token !",
+		}
+	}
+
+	ac_exp := accessPayload.ExpireAt.String()
+	rf_exp := refreshPayload.ExpireAt.String()
+
 	return &model.AuthResponse{
-		Status: true,
-		Token:  &token,
+		Status:  false,
+		AccessToken: &token,
+		RefreshToken: &refreshToken,
+		RefreshTokenExpiresAt: &rf_exp,
+		AccessTokenExpiresAt: &ac_exp,
 	}, nil
 }
 
 // Me is the resolver for the Me field.
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
-
 	payload := middleware.GetPayload(ctx)
 	if payload == nil {
 		return nil, &gqlerror.Error{
@@ -92,16 +145,15 @@ func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 			Message: "Something went wrong !",
 		}
 	}
-	
-	response := model.User {
-		ID: user.ID,
-		Name: user.Name,
+
+	response := model.User{
+		ID:    user.ID,
+		Name:  user.Name,
 		Email: user.Email,
 	}
-	
+
 	return &response, nil
 }
-
 
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }

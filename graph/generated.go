@@ -47,9 +47,12 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	AuthResponse struct {
-		Message func(childComplexity int) int
-		Status  func(childComplexity int) int
-		Token   func(childComplexity int) int
+		AccessToken           func(childComplexity int) int
+		AccessTokenExpiresAt  func(childComplexity int) int
+		Message               func(childComplexity int) int
+		RefreshToken          func(childComplexity int) int
+		RefreshTokenExpiresAt func(childComplexity int) int
+		Status                func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -93,6 +96,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
+	case "AuthResponse.access_token":
+		if e.complexity.AuthResponse.AccessToken == nil {
+			break
+		}
+
+		return e.complexity.AuthResponse.AccessToken(childComplexity), true
+
+	case "AuthResponse.access_token_expires_at":
+		if e.complexity.AuthResponse.AccessTokenExpiresAt == nil {
+			break
+		}
+
+		return e.complexity.AuthResponse.AccessTokenExpiresAt(childComplexity), true
+
 	case "AuthResponse.message":
 		if e.complexity.AuthResponse.Message == nil {
 			break
@@ -100,19 +117,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuthResponse.Message(childComplexity), true
 
+	case "AuthResponse.refresh_token":
+		if e.complexity.AuthResponse.RefreshToken == nil {
+			break
+		}
+
+		return e.complexity.AuthResponse.RefreshToken(childComplexity), true
+
+	case "AuthResponse.refresh_token_expires_at":
+		if e.complexity.AuthResponse.RefreshTokenExpiresAt == nil {
+			break
+		}
+
+		return e.complexity.AuthResponse.RefreshTokenExpiresAt(childComplexity), true
+
 	case "AuthResponse.status":
 		if e.complexity.AuthResponse.Status == nil {
 			break
 		}
 
 		return e.complexity.AuthResponse.Status(childComplexity), true
-
-	case "AuthResponse.token":
-		if e.complexity.AuthResponse.Token == nil {
-			break
-		}
-
-		return e.complexity.AuthResponse.Token(childComplexity), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -446,8 +470,8 @@ func (ec *executionContext) fieldContext_AuthResponse_message(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _AuthResponse_token(ctx context.Context, field graphql.CollectedField, obj *model.AuthResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuthResponse_token(ctx, field)
+func (ec *executionContext) _AuthResponse_access_token(ctx context.Context, field graphql.CollectedField, obj *model.AuthResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthResponse_access_token(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -460,7 +484,7 @@ func (ec *executionContext) _AuthResponse_token(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Token, nil
+		return obj.AccessToken, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -474,7 +498,130 @@ func (ec *executionContext) _AuthResponse_token(ctx context.Context, field graph
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuthResponse_token(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuthResponse_access_token(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuthResponse_refresh_token(ctx context.Context, field graphql.CollectedField, obj *model.AuthResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthResponse_refresh_token(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RefreshToken, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuthResponse_refresh_token(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuthResponse_access_token_expires_at(ctx context.Context, field graphql.CollectedField, obj *model.AuthResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthResponse_access_token_expires_at(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AccessTokenExpiresAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuthResponse_access_token_expires_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuthResponse_refresh_token_expires_at(ctx context.Context, field graphql.CollectedField, obj *model.AuthResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthResponse_refresh_token_expires_at(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RefreshTokenExpiresAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuthResponse_refresh_token_expires_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AuthResponse",
 		Field:      field,
@@ -529,8 +676,14 @@ func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, fie
 				return ec.fieldContext_AuthResponse_status(ctx, field)
 			case "message":
 				return ec.fieldContext_AuthResponse_message(ctx, field)
-			case "token":
-				return ec.fieldContext_AuthResponse_token(ctx, field)
+			case "access_token":
+				return ec.fieldContext_AuthResponse_access_token(ctx, field)
+			case "refresh_token":
+				return ec.fieldContext_AuthResponse_refresh_token(ctx, field)
+			case "access_token_expires_at":
+				return ec.fieldContext_AuthResponse_access_token_expires_at(ctx, field)
+			case "refresh_token_expires_at":
+				return ec.fieldContext_AuthResponse_refresh_token_expires_at(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AuthResponse", field.Name)
 		},
@@ -591,8 +744,14 @@ func (ec *executionContext) fieldContext_Mutation_register(ctx context.Context, 
 				return ec.fieldContext_AuthResponse_status(ctx, field)
 			case "message":
 				return ec.fieldContext_AuthResponse_message(ctx, field)
-			case "token":
-				return ec.fieldContext_AuthResponse_token(ctx, field)
+			case "access_token":
+				return ec.fieldContext_AuthResponse_access_token(ctx, field)
+			case "refresh_token":
+				return ec.fieldContext_AuthResponse_refresh_token(ctx, field)
+			case "access_token_expires_at":
+				return ec.fieldContext_AuthResponse_access_token_expires_at(ctx, field)
+			case "refresh_token_expires_at":
+				return ec.fieldContext_AuthResponse_refresh_token_expires_at(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AuthResponse", field.Name)
 		},
@@ -2920,9 +3079,21 @@ func (ec *executionContext) _AuthResponse(ctx context.Context, sel ast.Selection
 
 			out.Values[i] = ec._AuthResponse_message(ctx, field, obj)
 
-		case "token":
+		case "access_token":
 
-			out.Values[i] = ec._AuthResponse_token(ctx, field, obj)
+			out.Values[i] = ec._AuthResponse_access_token(ctx, field, obj)
+
+		case "refresh_token":
+
+			out.Values[i] = ec._AuthResponse_refresh_token(ctx, field, obj)
+
+		case "access_token_expires_at":
+
+			out.Values[i] = ec._AuthResponse_access_token_expires_at(ctx, field, obj)
+
+		case "refresh_token_expires_at":
+
+			out.Values[i] = ec._AuthResponse_refresh_token_expires_at(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))

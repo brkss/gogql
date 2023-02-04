@@ -3,9 +3,12 @@
 package model
 
 type AuthResponse struct {
-	Status  bool    `json:"status"`
-	Message *string `json:"message"`
-	Token   *string `json:"token"`
+	Status                bool    `json:"status"`
+	Message               *string `json:"message"`
+	AccessToken           *string `json:"access_token"`
+	RefreshToken          *string `json:"refresh_token"`
+	AccessTokenExpiresAt  *string `json:"access_token_expires_at"`
+	RefreshTokenExpiresAt *string `json:"refresh_token_expires_at"`
 }
 
 type LoginUserInput struct {
