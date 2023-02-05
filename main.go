@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -36,7 +35,6 @@ func main() {
 	if err != nil {
 		log.Fatal("cannot connect to database : ", err)
 	}
-	fmt.Print("con : ", con)
 	store := db.NewStore(con)
 
 	tokenMaker, err := token.NewPasetoMaker(config.TokenSymtrictKey)

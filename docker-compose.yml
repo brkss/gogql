@@ -11,7 +11,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      - DB_SOURCE=postgres://root:root@postgres:5432/gogql?sslmode=disable
+      - DB_SOURCE=postgres://root:root@postgres:5432/unwind?sslmode=disable
     ports:
       - "8080:8080"
     depends_on:

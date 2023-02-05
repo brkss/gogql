@@ -11,9 +11,9 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users 
-( id, name, email, password )
-VALUES ( $1, $2, $3, $4 )
-RETURNING id, name, email, password, created_at
+( id, name, email, password, age )
+VALUES ( $1, $2, $3, $4, $5 )
+RETURNING id, name, email, password, created_at, age
 `
 
 type CreateUserParams struct {
@@ -21,6 +21,7 @@ type CreateUserParams struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Age      int32  `json:"age"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -29,6 +30,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.Name,
 		arg.Email,
 		arg.Password,
+		arg.Age,
 	)
 	var i User
 	err := row.Scan(
@@ -37,12 +39,13 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Email,
 		&i.Password,
 		&i.CreatedAt,
+		&i.Age,
 	)
 	return i, err
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, name, email, password, created_at FROM users 
+SELECT id, name, email, password, created_at, age FROM users 
 WHERE id = $1
 LIMIT 1
 `
@@ -56,12 +59,13 @@ func (q *Queries) GetUser(ctx context.Context, id string) (User, error) {
 		&i.Email,
 		&i.Password,
 		&i.CreatedAt,
+		&i.Age,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, name, email, password, created_at FROM users 
+SELECT id, name, email, password, created_at, age FROM users 
 WHERE email = $1
 LIMIT 1
 `
@@ -75,6 +79,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Email,
 		&i.Password,
 		&i.CreatedAt,
+		&i.Age,
 	)
 	return i, err
 }

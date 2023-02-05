@@ -66,6 +66,7 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
+		Age   func(childComplexity int) int
 		Email func(childComplexity int) int
 		ID    func(childComplexity int) int
 		Name  func(childComplexity int) int
@@ -175,6 +176,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Ping(childComplexity), true
+
+	case "User.age":
+		if e.complexity.User.Age == nil {
+			break
+		}
+
+		return e.complexity.User.Age(childComplexity), true
 
 	case "User.email":
 		if e.complexity.User.Email == nil {
@@ -877,6 +885,8 @@ func (ec *executionContext) fieldContext_Query_Me(ctx context.Context, field gra
 				return ec.fieldContext_User_name(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "age":
+				return ec.fieldContext_User_age(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -1138,6 +1148,50 @@ func (ec *executionContext) fieldContext_User_email(ctx context.Context, field g
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_age(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_age(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Age, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_age(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2959,7 +3013,7 @@ func (ec *executionContext) unmarshalInputRegisterUserInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "email", "password"}
+	fieldsInOrder := [...]string{"name", "email", "password", "age"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3042,6 +3096,32 @@ func (ec *executionContext) unmarshalInputRegisterUserInput(ctx context.Context,
 				it.Password = data
 			} else {
 				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		case "age":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("age"))
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNFloat2float64(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				constraint, err := ec.unmarshalNString2string(ctx, "required,min=14")
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Binding == nil {
+					return nil, errors.New("directive binding is not implemented")
+				}
+				return ec.directives.Binding(ctx, obj, directive0, constraint)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(float64); ok {
+				it.Age = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be float64`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		}
@@ -3249,6 +3329,13 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		case "email":
 
 			out.Values[i] = ec._User_email(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "age":
+
+			out.Values[i] = ec._User_age(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -3609,6 +3696,21 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.SelectionSet, v float64) graphql.Marshaler {
+	res := graphql.MarshalFloatContext(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return graphql.WrapContextMarshaler(ctx, res)
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {

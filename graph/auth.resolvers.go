@@ -20,7 +20,7 @@ func (r *mutationResolver) Login(ctx context.Context, input *model.LoginUserInpu
 	user, err := r.Store.GetUserByEmail(ctx, input.Email)
 	if err != nil {
 		return nil, &gqlerror.Error{
-			Message: "Something went wrong !",
+			Message: "User not found ",
 		}
 	}
 	err = utils.VerifyPassword(user.Password, input.Password)
@@ -46,11 +46,11 @@ func (r *mutationResolver) Login(ctx context.Context, input *model.LoginUserInpu
 
 	// create session !
 	_, err = r.Store.CreateSession(ctx, db.CreateSessionParams{
-		ID: refreshPayload.ID,
-		UserID: user.ID,
-		Token: refreshToken,
+		ID:        refreshPayload.ID,
+		UserID:    user.ID,
+		Token:     refreshToken,
 		ExpiredAt: refreshPayload.ExpireAt,
-		Blocked: false,	
+		Blocked:   false,
 	})
 	if err != nil {
 		return nil, &gqlerror.Error{
@@ -62,11 +62,11 @@ func (r *mutationResolver) Login(ctx context.Context, input *model.LoginUserInpu
 	rf_exp := refreshPayload.ExpireAt.String()
 
 	return &model.AuthResponse{
-		Status:  false,
-		AccessToken: &token,
-		RefreshToken: &refreshToken,
+		Status:                false,
+		AccessToken:           &token,
+		RefreshToken:          &refreshToken,
 		RefreshTokenExpiresAt: &rf_exp,
-		AccessTokenExpiresAt: &ac_exp,
+		AccessTokenExpiresAt:  &ac_exp,
 	}, nil
 }
 
@@ -83,11 +83,12 @@ func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterUs
 		Name:     input.Name,
 		Email:    input.Email,
 		Password: hashedPassword,
+		Age: int32(input.Age),
 	}
 	user, err := r.Store.CreateUser(ctx, arg)
 	if err != nil {
 		return nil, &gqlerror.Error{
-			Message: "cannot create user !",
+			Message: "cannot create user ! : " + err.Error(),
 		}
 	}
 
@@ -107,11 +108,11 @@ func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterUs
 
 	// create session !
 	_, err = r.Store.CreateSession(ctx, db.CreateSessionParams{
-		ID: refreshPayload.ID,
-		UserID: user.ID,
-		Token: refreshToken,
+		ID:        refreshPayload.ID,
+		UserID:    user.ID,
+		Token:     refreshToken,
 		ExpiredAt: refreshPayload.ExpireAt,
-		Blocked: false,	
+		Blocked:   false,
 	})
 	if err != nil {
 		return nil, &gqlerror.Error{
@@ -123,11 +124,11 @@ func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterUs
 	rf_exp := refreshPayload.ExpireAt.String()
 
 	return &model.AuthResponse{
-		Status:  false,
-		AccessToken: &token,
-		RefreshToken: &refreshToken,
+		Status:                false,
+		AccessToken:           &token,
+		RefreshToken:          &refreshToken,
 		RefreshTokenExpiresAt: &rf_exp,
-		AccessTokenExpiresAt: &ac_exp,
+		AccessTokenExpiresAt:  &ac_exp,
 	}, nil
 }
 

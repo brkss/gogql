@@ -17,13 +17,15 @@ type LoginUserInput struct {
 }
 
 type RegisterUserInput struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Name     string  `json:"name"`
+	Email    string  `json:"email"`
+	Password string  `json:"password"`
+	Age      float64 `json:"age"`
 }
 
 type User struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	ID    string  `json:"id"`
+	Name  string  `json:"name"`
+	Email string  `json:"email"`
+	Age   float64 `json:"age"`
 }

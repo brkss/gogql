@@ -1,9 +1,9 @@
 
 
-DB_CONTAINER = postgres12-gogql
+DB_CONTAINER = postgres12-unwind
 DB_USERNAME = root
 DB_PASSWORD = root
-DB_DBNAME = gogql
+DB_DBNAME = unwind
 DB_PORT = 5432
 DB_HOST = localhost
 

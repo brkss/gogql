@@ -5,6 +5,7 @@ type User {
 	id: ID!
 	name: String!
 	email: String!
+	age: Float!
 }
 
 # Inputs
@@ -18,6 +19,7 @@ input RegisterUserInput {
 	name: String! @binding(constraint: "required,min=5")
 	email: String! @binding(constraint: "required,email")
 	password: String! @binding(constraint: "required,min=5")
+	age: Float! @binding(constraint: "required,min=14")
 }
 
 # Responses
