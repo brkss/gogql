@@ -61,7 +61,7 @@ func RefreshToken(store db.Store, config *utils.Config, maker Maker, w http.Resp
 	if err != nil {
 		w.Write([]byte(`{"error": "invalid user !"}`))
 		return;
-	}		
+	}
 
 	err = store.BlockSession(r.Context(), session.ID)
 	if err != nil {
