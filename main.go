@@ -59,6 +59,10 @@ func main() {
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(c))
 
+	router.Post("/refresh-token", func (w http.ResponseWriter, r *http.Request){
+		token.RefreshToken(store, config, tokenMaker, w, r);
+	})
+
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	router.Handle("/query", srv)
 

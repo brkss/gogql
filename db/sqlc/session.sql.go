@@ -10,6 +10,17 @@ import (
 	"time"
 )
 
+const blockSession = `-- name: BlockSession :exec
+UPDATE sessions
+SET blocked = true
+WHERE id = $1
+`
+
+func (q *Queries) BlockSession(ctx context.Context, id string) error {
+	_, err := q.db.ExecContext(ctx, blockSession, id)
+	return err
+}
+
 const createSession = `-- name: CreateSession :one
 INSERT INTO sessions
 (
@@ -43,6 +54,26 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (S
 		arg.Blocked,
 		arg.ExpiredAt,
 	)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Token,
+		&i.Blocked,
+		&i.ExpiredAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getSession = `-- name: GetSession :one
+SELECT id, user_id, token, blocked, expired_at, created_at FROM sessions
+WHERE id = $1 
+LIMIT 1
+`
+
+func (q *Queries) GetSession(ctx context.Context, id string) (Session, error) {
+	row := q.db.QueryRowContext(ctx, getSession, id)
 	var i Session
 	err := row.Scan(
 		&i.ID,
