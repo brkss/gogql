@@ -73,4 +73,5 @@ type Verfication struct {
 	UserID    string    `json:"user_id"`
 	ExpiredAt time.Time `json:"expired_at"`
 	CreatedAt time.Time `json:"created_at"`
+	Blocked   bool      `json:"blocked"`
 }

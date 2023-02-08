@@ -10,12 +10,23 @@ import (
 	"time"
 )
 
+const blockVerification = `-- name: BlockVerification :exec
+UPDATE "verfications"
+SET blocked = true 
+WHERE id = $1
+`
+
+func (q *Queries) BlockVerification(ctx context.Context, id string) error {
+	_, err := q.db.ExecContext(ctx, blockVerification, id)
+	return err
+}
+
 const createVerification = `-- name: CreateVerification :one
 INSERT INTO "verfications"
 (id, code, user_id, expired_at)
 VALUES
 ( $1, $2, $3, $4 )
-RETURNING id, code, user_id, expired_at, created_at
+RETURNING id, code, user_id, expired_at, created_at, blocked
 `
 
 type CreateVerificationParams struct {
@@ -39,14 +50,16 @@ func (q *Queries) CreateVerification(ctx context.Context, arg CreateVerification
 		&i.UserID,
 		&i.ExpiredAt,
 		&i.CreatedAt,
+		&i.Blocked,
 	)
 	return i, err
 }
 
 const getVerification = `-- name: GetVerification :one
-SELECT id, code, user_id, expired_at, created_at FROM "verfications"
+SELECT id, code, user_id, expired_at, created_at, blocked FROM "verfications"
 WHERE user_id = $1
 AND code = $2
+AND  expired_at > NOW() + INTERVAL '1' hour * 1
 LIMIT 1
 `
 
@@ -55,7 +68,6 @@ type GetVerificationParams struct {
 	Code   string `json:"code"`
 }
 
-// AND expired_at < NOW()
 func (q *Queries) GetVerification(ctx context.Context, arg GetVerificationParams) (Verfication, error) {
 	row := q.db.QueryRowContext(ctx, getVerification, arg.UserID, arg.Code)
 	var i Verfication
@@ -65,6 +77,7 @@ func (q *Queries) GetVerification(ctx context.Context, arg GetVerificationParams
 		&i.UserID,
 		&i.ExpiredAt,
 		&i.CreatedAt,
+		&i.Blocked,
 	)
 	return i, err
 }

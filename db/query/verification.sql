@@ -11,5 +11,10 @@ RETURNING *;
 SELECT * FROM "verfications"
 WHERE user_id = $1
 AND code = $2
---AND expired_at < NOW()
+AND  expired_at > NOW() + INTERVAL '1' hour * 1
 LIMIT 1;
+
+-- name: BlockVerification :exec
+UPDATE "verfications"
+SET blocked = true 
+WHERE id = $1;

@@ -40,5 +40,9 @@ func VerifyOTP(code string, userId string, store db.Store, ctx context.Context)(
 	if time.Now().After(verification.ExpiredAt){
 		return false, errors.New("Verification Code Expired!")
 	}
+	err = store.BlockVerification(ctx, verification.ID);
+	if err != nil {
+		return false, errors.New("Something went wrong, please try again !");
+	}
 	return true, nil
 }
