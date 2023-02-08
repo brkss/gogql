@@ -105,7 +105,7 @@ func (r *mutationResolver) VerifyUser(ctx context.Context, input *model.Verifica
 	ac_exp := accessPayload.ExpireAt.String()
 	rf_exp := refreshPayload.ExpireAt.String()
 	return &model.AuthorizationResponse{
-		Status:                false,
+		Status:                true,
 		AccessToken:           &token,
 		RefreshToken:          &refreshToken,
 		RefreshTokenExpiresAt: &rf_exp,
