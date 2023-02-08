@@ -47,17 +47,22 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	AuthResponse struct {
+		Message func(childComplexity int) int
+		Status  func(childComplexity int) int
+	}
+
+	AuthorizationResponse struct {
 		AccessToken           func(childComplexity int) int
 		AccessTokenExpiresAt  func(childComplexity int) int
-		Message               func(childComplexity int) int
 		RefreshToken          func(childComplexity int) int
 		RefreshTokenExpiresAt func(childComplexity int) int
 		Status                func(childComplexity int) int
 	}
 
 	Mutation struct {
-		Login    func(childComplexity int, input *model.LoginUserInput) int
-		Register func(childComplexity int, input *model.RegisterUserInput) int
+		Login      func(childComplexity int, input *model.LoginUserInput) int
+		Register   func(childComplexity int, input *model.RegisterUserInput) int
+		VerifyUser func(childComplexity int, input *model.VerificationRequest) int
 	}
 
 	Query struct {
@@ -76,6 +81,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	Login(ctx context.Context, input *model.LoginUserInput) (*model.AuthResponse, error)
 	Register(ctx context.Context, input *model.RegisterUserInput) (*model.AuthResponse, error)
+	VerifyUser(ctx context.Context, input *model.VerificationRequest) (*model.AuthorizationResponse, error)
 }
 type QueryResolver interface {
 	Ping(ctx context.Context) (string, error)
@@ -97,20 +103,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "AuthResponse.access_token":
-		if e.complexity.AuthResponse.AccessToken == nil {
-			break
-		}
-
-		return e.complexity.AuthResponse.AccessToken(childComplexity), true
-
-	case "AuthResponse.access_token_expires_at":
-		if e.complexity.AuthResponse.AccessTokenExpiresAt == nil {
-			break
-		}
-
-		return e.complexity.AuthResponse.AccessTokenExpiresAt(childComplexity), true
-
 	case "AuthResponse.message":
 		if e.complexity.AuthResponse.Message == nil {
 			break
@@ -118,26 +110,47 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuthResponse.Message(childComplexity), true
 
-	case "AuthResponse.refresh_token":
-		if e.complexity.AuthResponse.RefreshToken == nil {
-			break
-		}
-
-		return e.complexity.AuthResponse.RefreshToken(childComplexity), true
-
-	case "AuthResponse.refresh_token_expires_at":
-		if e.complexity.AuthResponse.RefreshTokenExpiresAt == nil {
-			break
-		}
-
-		return e.complexity.AuthResponse.RefreshTokenExpiresAt(childComplexity), true
-
 	case "AuthResponse.status":
 		if e.complexity.AuthResponse.Status == nil {
 			break
 		}
 
 		return e.complexity.AuthResponse.Status(childComplexity), true
+
+	case "AuthorizationResponse.access_token":
+		if e.complexity.AuthorizationResponse.AccessToken == nil {
+			break
+		}
+
+		return e.complexity.AuthorizationResponse.AccessToken(childComplexity), true
+
+	case "AuthorizationResponse.access_token_expires_at":
+		if e.complexity.AuthorizationResponse.AccessTokenExpiresAt == nil {
+			break
+		}
+
+		return e.complexity.AuthorizationResponse.AccessTokenExpiresAt(childComplexity), true
+
+	case "AuthorizationResponse.refresh_token":
+		if e.complexity.AuthorizationResponse.RefreshToken == nil {
+			break
+		}
+
+		return e.complexity.AuthorizationResponse.RefreshToken(childComplexity), true
+
+	case "AuthorizationResponse.refresh_token_expires_at":
+		if e.complexity.AuthorizationResponse.RefreshTokenExpiresAt == nil {
+			break
+		}
+
+		return e.complexity.AuthorizationResponse.RefreshTokenExpiresAt(childComplexity), true
+
+	case "AuthorizationResponse.status":
+		if e.complexity.AuthorizationResponse.Status == nil {
+			break
+		}
+
+		return e.complexity.AuthorizationResponse.Status(childComplexity), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -162,6 +175,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.Register(childComplexity, args["input"].(*model.RegisterUserInput)), true
+
+	case "Mutation.verifyUser":
+		if e.complexity.Mutation.VerifyUser == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_verifyUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.VerifyUser(childComplexity, args["input"].(*model.VerificationRequest)), true
 
 	case "Query.Me":
 		if e.complexity.Query.Me == nil {
@@ -215,6 +240,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputLoginUserInput,
 		ec.unmarshalInputRegisterUserInput,
+		ec.unmarshalInputVerificationRequest,
 	)
 	first := true
 
@@ -332,6 +358,21 @@ func (ec *executionContext) field_Mutation_register_args(ctx context.Context, ra
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalORegisterUserInput2ᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐRegisterUserInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_verifyUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.VerificationRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOVerificationRequest2ᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐVerificationRequest(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -478,8 +519,52 @@ func (ec *executionContext) fieldContext_AuthResponse_message(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _AuthResponse_access_token(ctx context.Context, field graphql.CollectedField, obj *model.AuthResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuthResponse_access_token(ctx, field)
+func (ec *executionContext) _AuthorizationResponse_status(ctx context.Context, field graphql.CollectedField, obj *model.AuthorizationResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthorizationResponse_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuthorizationResponse_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthorizationResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuthorizationResponse_access_token(ctx context.Context, field graphql.CollectedField, obj *model.AuthorizationResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthorizationResponse_access_token(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -506,9 +591,9 @@ func (ec *executionContext) _AuthResponse_access_token(ctx context.Context, fiel
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuthResponse_access_token(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuthorizationResponse_access_token(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuthResponse",
+		Object:     "AuthorizationResponse",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -519,8 +604,8 @@ func (ec *executionContext) fieldContext_AuthResponse_access_token(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _AuthResponse_refresh_token(ctx context.Context, field graphql.CollectedField, obj *model.AuthResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuthResponse_refresh_token(ctx, field)
+func (ec *executionContext) _AuthorizationResponse_refresh_token(ctx context.Context, field graphql.CollectedField, obj *model.AuthorizationResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthorizationResponse_refresh_token(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -547,9 +632,9 @@ func (ec *executionContext) _AuthResponse_refresh_token(ctx context.Context, fie
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuthResponse_refresh_token(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuthorizationResponse_refresh_token(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuthResponse",
+		Object:     "AuthorizationResponse",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -560,8 +645,8 @@ func (ec *executionContext) fieldContext_AuthResponse_refresh_token(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _AuthResponse_access_token_expires_at(ctx context.Context, field graphql.CollectedField, obj *model.AuthResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuthResponse_access_token_expires_at(ctx, field)
+func (ec *executionContext) _AuthorizationResponse_access_token_expires_at(ctx context.Context, field graphql.CollectedField, obj *model.AuthorizationResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthorizationResponse_access_token_expires_at(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -588,9 +673,9 @@ func (ec *executionContext) _AuthResponse_access_token_expires_at(ctx context.Co
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuthResponse_access_token_expires_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuthorizationResponse_access_token_expires_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuthResponse",
+		Object:     "AuthorizationResponse",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -601,8 +686,8 @@ func (ec *executionContext) fieldContext_AuthResponse_access_token_expires_at(ct
 	return fc, nil
 }
 
-func (ec *executionContext) _AuthResponse_refresh_token_expires_at(ctx context.Context, field graphql.CollectedField, obj *model.AuthResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuthResponse_refresh_token_expires_at(ctx, field)
+func (ec *executionContext) _AuthorizationResponse_refresh_token_expires_at(ctx context.Context, field graphql.CollectedField, obj *model.AuthorizationResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthorizationResponse_refresh_token_expires_at(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -629,9 +714,9 @@ func (ec *executionContext) _AuthResponse_refresh_token_expires_at(ctx context.C
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuthResponse_refresh_token_expires_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuthorizationResponse_refresh_token_expires_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuthResponse",
+		Object:     "AuthorizationResponse",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -684,14 +769,6 @@ func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, fie
 				return ec.fieldContext_AuthResponse_status(ctx, field)
 			case "message":
 				return ec.fieldContext_AuthResponse_message(ctx, field)
-			case "access_token":
-				return ec.fieldContext_AuthResponse_access_token(ctx, field)
-			case "refresh_token":
-				return ec.fieldContext_AuthResponse_refresh_token(ctx, field)
-			case "access_token_expires_at":
-				return ec.fieldContext_AuthResponse_access_token_expires_at(ctx, field)
-			case "refresh_token_expires_at":
-				return ec.fieldContext_AuthResponse_refresh_token_expires_at(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AuthResponse", field.Name)
 		},
@@ -752,14 +829,6 @@ func (ec *executionContext) fieldContext_Mutation_register(ctx context.Context, 
 				return ec.fieldContext_AuthResponse_status(ctx, field)
 			case "message":
 				return ec.fieldContext_AuthResponse_message(ctx, field)
-			case "access_token":
-				return ec.fieldContext_AuthResponse_access_token(ctx, field)
-			case "refresh_token":
-				return ec.fieldContext_AuthResponse_refresh_token(ctx, field)
-			case "access_token_expires_at":
-				return ec.fieldContext_AuthResponse_access_token_expires_at(ctx, field)
-			case "refresh_token_expires_at":
-				return ec.fieldContext_AuthResponse_refresh_token_expires_at(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AuthResponse", field.Name)
 		},
@@ -772,6 +841,69 @@ func (ec *executionContext) fieldContext_Mutation_register(ctx context.Context, 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_register_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_verifyUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_verifyUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().VerifyUser(rctx, fc.Args["input"].(*model.VerificationRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.AuthorizationResponse)
+	fc.Result = res
+	return ec.marshalOAuthorizationResponse2ᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐAuthorizationResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_verifyUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "status":
+				return ec.fieldContext_AuthorizationResponse_status(ctx, field)
+			case "access_token":
+				return ec.fieldContext_AuthorizationResponse_access_token(ctx, field)
+			case "refresh_token":
+				return ec.fieldContext_AuthorizationResponse_refresh_token(ctx, field)
+			case "access_token_expires_at":
+				return ec.fieldContext_AuthorizationResponse_access_token_expires_at(ctx, field)
+			case "refresh_token_expires_at":
+				return ec.fieldContext_AuthorizationResponse_refresh_token_expires_at(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuthorizationResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_verifyUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -2977,7 +3109,7 @@ func (ec *executionContext) unmarshalInputLoginUserInput(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "password"}
+	fieldsInOrder := [...]string{"email"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2989,14 +3121,6 @@ func (ec *executionContext) unmarshalInputLoginUserInput(ctx context.Context, ob
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
 			it.Email, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "password":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			it.Password, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3013,7 +3137,7 @@ func (ec *executionContext) unmarshalInputRegisterUserInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "email", "password", "age"}
+	fieldsInOrder := [...]string{"name", "email", "age"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3072,32 +3196,6 @@ func (ec *executionContext) unmarshalInputRegisterUserInput(ctx context.Context,
 				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
-		case "password":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
-			directive1 := func(ctx context.Context) (interface{}, error) {
-				constraint, err := ec.unmarshalNString2string(ctx, "required,min=5")
-				if err != nil {
-					return nil, err
-				}
-				if ec.directives.Binding == nil {
-					return nil, errors.New("directive binding is not implemented")
-				}
-				return ec.directives.Binding(ctx, obj, directive0, constraint)
-			}
-
-			tmp, err := directive1(ctx)
-			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
-			if data, ok := tmp.(string); ok {
-				it.Password = data
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
 		case "age":
 			var err error
 
@@ -3122,6 +3220,78 @@ func (ec *executionContext) unmarshalInputRegisterUserInput(ctx context.Context,
 				it.Age = data
 			} else {
 				err := fmt.Errorf(`unexpected type %T from directive, should be float64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputVerificationRequest(ctx context.Context, obj interface{}) (model.VerificationRequest, error) {
+	var it model.VerificationRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"code", "email"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "code":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				constraint, err := ec.unmarshalNString2string(ctx, "required,min=4")
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Binding == nil {
+					return nil, errors.New("directive binding is not implemented")
+				}
+				return ec.directives.Binding(ctx, obj, directive0, constraint)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Code = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				constraint, err := ec.unmarshalNString2string(ctx, "required,email")
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Binding == nil {
+					return nil, errors.New("directive binding is not implemented")
+				}
+				return ec.directives.Binding(ctx, obj, directive0, constraint)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Email = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		}
@@ -3159,21 +3329,49 @@ func (ec *executionContext) _AuthResponse(ctx context.Context, sel ast.Selection
 
 			out.Values[i] = ec._AuthResponse_message(ctx, field, obj)
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var authorizationResponseImplementors = []string{"AuthorizationResponse"}
+
+func (ec *executionContext) _AuthorizationResponse(ctx context.Context, sel ast.SelectionSet, obj *model.AuthorizationResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, authorizationResponseImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuthorizationResponse")
+		case "status":
+
+			out.Values[i] = ec._AuthorizationResponse_status(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "access_token":
 
-			out.Values[i] = ec._AuthResponse_access_token(ctx, field, obj)
+			out.Values[i] = ec._AuthorizationResponse_access_token(ctx, field, obj)
 
 		case "refresh_token":
 
-			out.Values[i] = ec._AuthResponse_refresh_token(ctx, field, obj)
+			out.Values[i] = ec._AuthorizationResponse_refresh_token(ctx, field, obj)
 
 		case "access_token_expires_at":
 
-			out.Values[i] = ec._AuthResponse_access_token_expires_at(ctx, field, obj)
+			out.Values[i] = ec._AuthorizationResponse_access_token_expires_at(ctx, field, obj)
 
 		case "refresh_token_expires_at":
 
-			out.Values[i] = ec._AuthResponse_refresh_token_expires_at(ctx, field, obj)
+			out.Values[i] = ec._AuthorizationResponse_refresh_token_expires_at(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -3214,6 +3412,12 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_register(ctx, field)
+			})
+
+		case "verifyUser":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_verifyUser(ctx, field)
 			})
 
 		default:
@@ -4010,6 +4214,13 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
+func (ec *executionContext) marshalOAuthorizationResponse2ᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐAuthorizationResponse(ctx context.Context, sel ast.SelectionSet, v *model.AuthorizationResponse) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._AuthorizationResponse(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4066,6 +4277,14 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOVerificationRequest2ᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐVerificationRequest(ctx context.Context, v interface{}) (*model.VerificationRequest, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputVerificationRequest(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

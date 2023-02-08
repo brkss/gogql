@@ -12,9 +12,12 @@ type Querier interface {
 	BlockSession(ctx context.Context, id string) error
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	CreateVerification(ctx context.Context, arg CreateVerificationParams) (Verfication, error)
 	GetSession(ctx context.Context, id string) (Session, error)
 	GetUser(ctx context.Context, id string) (User, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
+	//AND expired_at < NOW()
+	GetVerification(ctx context.Context, arg GetVerificationParams) (Verfication, error)
 }
 
 var _ Querier = (*Queries)(nil)

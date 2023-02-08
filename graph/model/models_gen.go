@@ -3,8 +3,12 @@
 package model
 
 type AuthResponse struct {
+	Status  bool    `json:"status"`
+	Message *string `json:"message"`
+}
+
+type AuthorizationResponse struct {
 	Status                bool    `json:"status"`
-	Message               *string `json:"message"`
 	AccessToken           *string `json:"access_token"`
 	RefreshToken          *string `json:"refresh_token"`
 	AccessTokenExpiresAt  *string `json:"access_token_expires_at"`
@@ -12,15 +16,13 @@ type AuthResponse struct {
 }
 
 type LoginUserInput struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email string `json:"email"`
 }
 
 type RegisterUserInput struct {
-	Name     string  `json:"name"`
-	Email    string  `json:"email"`
-	Password string  `json:"password"`
-	Age      float64 `json:"age"`
+	Name  string  `json:"name"`
+	Email string  `json:"email"`
+	Age   float64 `json:"age"`
 }
 
 type User struct {
@@ -28,4 +30,9 @@ type User struct {
 	Name  string  `json:"name"`
 	Email string  `json:"email"`
 	Age   float64 `json:"age"`
+}
+
+type VerificationRequest struct {
+	Code  string `json:"code"`
+	Email string `json:"email"`
 }
