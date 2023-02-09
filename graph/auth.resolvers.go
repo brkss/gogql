@@ -69,7 +69,7 @@ func (r *mutationResolver) VerifyUser(ctx context.Context, input *model.Verifica
 	}
 	ok, err := otp.VerifyOTP(input.Code, user.ID, r.Store, ctx)
 	if err != nil || !ok {
-		fmt.Print("error : ", err, "\n", user.ID, input.Code);
+		fmt.Print("error : ", err, "\n", user.ID, input.Code)
 		return nil, &gqlerror.Error{
 			Message: "Invalid Code !",
 		}

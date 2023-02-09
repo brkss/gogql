@@ -2,6 +2,13 @@
 
 package model
 
+type Answer struct {
+	ID         string  `json:"id"`
+	Ans        string  `json:"ans"`
+	Val        float64 `json:"val"`
+	QuestionID string  `json:"question_id"`
+}
+
 type AuthResponse struct {
 	Status  bool    `json:"status"`
 	Message *string `json:"message"`
@@ -38,10 +45,32 @@ type LoginUserInput struct {
 	Email string `json:"email"`
 }
 
+type Question struct {
+	ID       string    `json:"id"`
+	Qst      string    `json:"qst"`
+	SurveyID string    `json:"survey_id"`
+	Answer   []*Answer `json:"answer"`
+}
+
 type RegisterUserInput struct {
 	Name  string  `json:"name"`
 	Email string  `json:"email"`
 	Age   float64 `json:"age"`
+}
+
+type Result struct {
+	ID       string  `json:"id"`
+	Min      float64 `json:"min"`
+	Max      float64 `json:"max"`
+	Comment  string  `json:"comment"`
+	SurveyID string  `json:"survey_id"`
+}
+
+type Survey struct {
+	ID        string      `json:"id"`
+	Name      string      `json:"name"`
+	Questions []*Question `json:"questions"`
+	Results   []*Result   `json:"results"`
 }
 
 type User struct {
