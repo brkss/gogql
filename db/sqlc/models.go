@@ -12,6 +12,7 @@ type Answer struct {
 	ID         string `json:"id"`
 	Ans        string `json:"ans"`
 	QuestionID string `json:"question_id"`
+	Val        int32  `json:"val"`
 }
 
 type Exercice struct {

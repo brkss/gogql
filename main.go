@@ -12,6 +12,7 @@ import (
 	"github.com/brkss/gogql/directive"
 	"github.com/brkss/gogql/graph"
 	"github.com/brkss/gogql/middleware"
+	"github.com/brkss/gogql/seed"
 	"github.com/brkss/gogql/token"
 	"github.com/brkss/gogql/utils"
 	"github.com/go-chi/chi/v5"
@@ -59,6 +60,12 @@ func main() {
 
 	router.Post("/refresh-token", func (w http.ResponseWriter, r *http.Request){
 		token.RefreshToken(store, config, tokenMaker, w, r);
+	})
+
+	router.Post("/seed", func (w http.ResponseWriter, r *http.Request){
+		seed.SeedSurvies(store);
+		w.Header().Add("Content-Type", "application/json")
+		w.Write([]byte(`{"success": "ok"}`));
 	})
 
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
