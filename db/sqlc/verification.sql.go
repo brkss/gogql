@@ -59,7 +59,8 @@ const getVerification = `-- name: GetVerification :one
 SELECT id, code, user_id, expired_at, created_at, blocked FROM "verfications"
 WHERE user_id = $1
 AND code = $2
-AND  expired_at > NOW() + INTERVAL '1' hour * 1
+AND  expired_at > NOW() 
+AND blocked = false
 LIMIT 1
 `
 

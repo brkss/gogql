@@ -43,7 +43,7 @@ CREATE TABLE "verfications" (
   "id" varchar PRIMARY KEY,
   "code" varchar NOT NULL,
   "user_id" varchar NOT NULL,
-  "expired_at" timestamp NOT NULL,
+  "expired_at" timestamptz NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 

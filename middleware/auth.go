@@ -6,7 +6,7 @@ import (
 	//"io/ioutil"
 	"net/http"
 
-	//"strings"
+	"strings"
 
 	"github.com/brkss/gogql/token"
 )
@@ -29,10 +29,6 @@ func AuthMiddleware(maker token.Maker) func(http.Handler) http.Handler {
 			//data, _ :=  ioutil.ReadAll(body)
 			
 			//fmt.Print("req : ", string(data))
-			fmt.Println("Middleware called ! ")
-			next.ServeHTTP(w, r)
-			return;
-			/*
 			auth := r.Header.Get(AuthorizationKeyHeader)
 			if len(auth) == 0 {
 				next.ServeHTTP(w, r)
@@ -65,7 +61,6 @@ func AuthMiddleware(maker token.Maker) func(http.Handler) http.Handler {
 			r = r.WithContext(ctx)
 			next.ServeHTTP(w, r)
 			fmt.Printf("after middleware next !")	
-			*/
 		})
 	} 
 }

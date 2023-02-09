@@ -15,6 +15,25 @@ type AuthorizationResponse struct {
 	RefreshTokenExpiresAt *string `json:"refresh_token_expires_at"`
 }
 
+type CreateExerciceInput struct {
+	Name     string `json:"name"`
+	Duration string `json:"duration"`
+}
+
+type CreateExerciceResponse struct {
+	Status   bool      `json:"status"`
+	Message  *string   `json:"message"`
+	Exercice *Exercice `json:"exercice"`
+}
+
+type Exercice struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Duration  string `json:"duration"`
+	UserID    string `json:"user_id"`
+	CreatedAt string `json:"created_at"`
+}
+
 type LoginUserInput struct {
 	Email string `json:"email"`
 }
