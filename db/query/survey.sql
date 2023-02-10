@@ -29,3 +29,20 @@ RETURNING *;
 -- name: GetSurvies :many 
 SELECT * FROM "surveys"
 ORDER BY id;
+
+-- name: GetSurvey :one
+SELECT * FROM "surveys"
+WHERE id = $1
+LIMIT 1;
+
+-- name: GetSurveyQuestions :many
+SELECT * FROM "questions"
+WHERE survey_id = $1;
+
+-- name: GetQuestionAnswers :many
+SELECT * FROM "answers"
+WHERE question_id = $1;
+
+-- name: GetSurveyResults :many
+SELECT * from "results"
+WHERE surver_id= $1;

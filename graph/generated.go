@@ -2765,14 +2765,11 @@ func (ec *executionContext) _Survey_results(ctx context.Context, field graphql.C
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.([]*model.Result)
 	fc.Result = res
-	return ec.marshalNResult2ᚕᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐResultᚄ(ctx, field.Selections, res)
+	return ec.marshalOResult2ᚕᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐResultᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Survey_results(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5552,9 +5549,6 @@ func (ec *executionContext) _Survey(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Values[i] = ec._Survey_results(ctx, field, obj)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6168,50 +6162,6 @@ func (ec *executionContext) marshalNQuestion2ᚖgithubᚗcomᚋbrkssᚋgogqlᚋg
 	return ec._Question(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNResult2ᚕᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐResultᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Result) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNResult2ᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐResult(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
 func (ec *executionContext) marshalNResult2ᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐResult(ctx context.Context, sel ast.SelectionSet, v *model.Result) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -6580,6 +6530,53 @@ func (ec *executionContext) unmarshalORegisterUserInput2ᚖgithubᚗcomᚋbrkss�
 	}
 	res, err := ec.unmarshalInputRegisterUserInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOResult2ᚕᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐResultᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Result) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNResult2ᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐResult(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

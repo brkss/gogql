@@ -9,9 +9,53 @@ import (
 	"fmt"
 
 	"github.com/brkss/gogql/graph/model"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // GetSurvey is the resolver for the getSurvey field.
 func (r *queryResolver) GetSurvey(ctx context.Context, id string) (*model.Survey, error) {
-	panic(fmt.Errorf("not implemented: GetSurvey - getSurvey"))
+	var response model.Survey
+	//// get survey
+	survey, err := r.Store.GetSurvey(ctx, id)
+	if err != nil {
+		return nil, &gqlerror.Error{
+			Message: "Can't load survey !",
+		}
+	}
+
+	response.ID = survey.ID
+	response.Name = survey.Name
+
+	// get survey's questions
+	questions, err := r.Store.GetSurveyQuestions(ctx, survey.ID)
+	if err != nil {
+		return nil, &gqlerror.Error{
+			Message: "Can't load survey's querstions !",
+		}
+	}
+	
+	fmt.Println("questions : ", questions)
+	var survey_questions []*model.Question
+	/// get question's options
+	for _, qst := range questions {
+		answers, _ := r.Store.GetQuestionAnswers(ctx, qst.ID)
+		var answers_model []*model.Answer
+		for _, ans := range answers {
+			answers_model = append(answers_model, &model.Answer{
+				ID:         ans.ID,
+				Ans:        ans.Ans,
+				Val:        float64(ans.Val),
+				QuestionID: ans.QuestionID,
+			})
+		}
+		qq := &model.Question{
+			ID:     qst.ID,
+			Qst:    qst.Qst,
+			Answer: answers_model,
+		}
+		survey_questions = append(survey_questions, qq)
+	}
+	response.Questions = survey_questions;
+	return &response, nil
+	//panic(fmt.Errorf("not implemented: GetSurvey - getSurvey"))
 }

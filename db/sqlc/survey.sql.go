@@ -113,6 +113,114 @@ func (q *Queries) CreateSurveyResult(ctx context.Context, arg CreateSurveyResult
 	return i, err
 }
 
+const getQuestionAnswers = `-- name: GetQuestionAnswers :many
+SELECT id, ans, question_id, val FROM "answers"
+WHERE question_id = $1
+`
+
+func (q *Queries) GetQuestionAnswers(ctx context.Context, questionID string) ([]Answer, error) {
+	rows, err := q.db.QueryContext(ctx, getQuestionAnswers, questionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Answer{}
+	for rows.Next() {
+		var i Answer
+		if err := rows.Scan(
+			&i.ID,
+			&i.Ans,
+			&i.QuestionID,
+			&i.Val,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSurvey = `-- name: GetSurvey :one
+SELECT id, name FROM "surveys"
+WHERE id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetSurvey(ctx context.Context, id string) (Survey, error) {
+	row := q.db.QueryRowContext(ctx, getSurvey, id)
+	var i Survey
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
+const getSurveyQuestions = `-- name: GetSurveyQuestions :many
+SELECT id, qst, survey_id FROM "questions"
+WHERE survey_id = $1
+`
+
+func (q *Queries) GetSurveyQuestions(ctx context.Context, surveyID string) ([]Question, error) {
+	rows, err := q.db.QueryContext(ctx, getSurveyQuestions, surveyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Question{}
+	for rows.Next() {
+		var i Question
+		if err := rows.Scan(&i.ID, &i.Qst, &i.SurveyID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSurveyResults = `-- name: GetSurveyResults :many
+SELECT id, min, max, comment, surver_id from "results"
+WHERE surver_id= $1
+`
+
+func (q *Queries) GetSurveyResults(ctx context.Context, surverID string) ([]Result, error) {
+	rows, err := q.db.QueryContext(ctx, getSurveyResults, surverID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Result{}
+	for rows.Next() {
+		var i Result
+		if err := rows.Scan(
+			&i.ID,
+			&i.Min,
+			&i.Max,
+			&i.Comment,
+			&i.SurverID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSurvies = `-- name: GetSurvies :many
 SELECT id, name FROM "surveys"
 ORDER BY id

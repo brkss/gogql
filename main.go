@@ -46,7 +46,6 @@ func main() {
 	router := chi.NewRouter()
 	router.Use(middleware.AuthMiddleware(tokenMaker))
 	
-
 	c := graph.Config{Resolvers: &graph.Resolver{
 		Config: config,
 		Store: store,

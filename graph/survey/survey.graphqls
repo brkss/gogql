@@ -1,11 +1,9 @@
 
-
-
 type Survey {
 	id: ID!
 	name: String!
 	questions: [Question!]!
-	results: [Result!]!
+	results: [Result!]
 }
 
 type Question {
