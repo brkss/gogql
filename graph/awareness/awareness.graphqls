@@ -1,0 +1,14 @@
+
+
+
+type Awareness {
+	id: ID!
+	Title: String!
+	image: String
+	content: String
+	survey: Survey
+}
+
+extend type Query {
+	getAwarenesses: [Awareness!]! 
+}

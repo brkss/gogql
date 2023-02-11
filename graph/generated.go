@@ -66,6 +66,14 @@ type ComplexityRoot struct {
 		Status                func(childComplexity int) int
 	}
 
+	Awareness struct {
+		Content func(childComplexity int) int
+		ID      func(childComplexity int) int
+		Image   func(childComplexity int) int
+		Survey  func(childComplexity int) int
+		Title   func(childComplexity int) int
+	}
+
 	CreateExerciceResponse struct {
 		Exercice func(childComplexity int) int
 		Message  func(childComplexity int) int
@@ -88,11 +96,12 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetExercices func(childComplexity int) int
-		GetSurvey    func(childComplexity int, id string) int
-		Me           func(childComplexity int) int
-		Ping         func(childComplexity int) int
-		Survies      func(childComplexity int) int
+		GetAwarenesses func(childComplexity int) int
+		GetExercices   func(childComplexity int) int
+		GetSurvey      func(childComplexity int, id string) int
+		Me             func(childComplexity int) int
+		Ping           func(childComplexity int) int
+		Survies        func(childComplexity int) int
 	}
 
 	Question struct {
@@ -133,6 +142,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Ping(ctx context.Context) (string, error)
+	GetAwarenesses(ctx context.Context) ([]*model.Awareness, error)
 	GetExercices(ctx context.Context) ([]*model.Exercice, error)
 	GetSurvey(ctx context.Context, id string) (*model.Survey, error)
 	Survies(ctx context.Context) ([]*model.Survey, error)
@@ -230,6 +240,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AuthorizationResponse.Status(childComplexity), true
+
+	case "Awareness.content":
+		if e.complexity.Awareness.Content == nil {
+			break
+		}
+
+		return e.complexity.Awareness.Content(childComplexity), true
+
+	case "Awareness.id":
+		if e.complexity.Awareness.ID == nil {
+			break
+		}
+
+		return e.complexity.Awareness.ID(childComplexity), true
+
+	case "Awareness.image":
+		if e.complexity.Awareness.Image == nil {
+			break
+		}
+
+		return e.complexity.Awareness.Image(childComplexity), true
+
+	case "Awareness.survey":
+		if e.complexity.Awareness.Survey == nil {
+			break
+		}
+
+		return e.complexity.Awareness.Survey(childComplexity), true
+
+	case "Awareness.Title":
+		if e.complexity.Awareness.Title == nil {
+			break
+		}
+
+		return e.complexity.Awareness.Title(childComplexity), true
 
 	case "CreateExerciceResponse.exercice":
 		if e.complexity.CreateExerciceResponse.Exercice == nil {
@@ -334,6 +379,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.VerifyUser(childComplexity, args["input"].(*model.VerificationRequest)), true
+
+	case "Query.getAwarenesses":
+		if e.complexity.Query.GetAwarenesses == nil {
+			break
+		}
+
+		return e.complexity.Query.GetAwarenesses(childComplexity), true
 
 	case "Query.getExercices":
 		if e.complexity.Query.GetExercices == nil {
@@ -565,7 +617,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
 }
 
-//go:embed "exercice/exercice.graphqls" "schema.graphqls" "survey/survey.graphqls" "user/auth.graphqls"
+//go:embed "awareness/awareness.graphqls" "exercice/exercice.graphqls" "schema.graphqls" "survey/survey.graphqls" "user/auth.graphqls"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -577,6 +629,7 @@ func sourceData(filename string) string {
 }
 
 var sources = []*ast.Source{
+	{Name: "awareness/awareness.graphqls", Input: sourceData("awareness/awareness.graphqls"), BuiltIn: false},
 	{Name: "exercice/exercice.graphqls", Input: sourceData("exercice/exercice.graphqls"), BuiltIn: false},
 	{Name: "schema.graphqls", Input: sourceData("schema.graphqls"), BuiltIn: false},
 	{Name: "survey/survey.graphqls", Input: sourceData("survey/survey.graphqls"), BuiltIn: false},
@@ -1195,6 +1248,227 @@ func (ec *executionContext) fieldContext_AuthorizationResponse_refresh_token_exp
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Awareness_id(ctx context.Context, field graphql.CollectedField, obj *model.Awareness) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Awareness_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Awareness_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Awareness",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Awareness_Title(ctx context.Context, field graphql.CollectedField, obj *model.Awareness) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Awareness_Title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Awareness_Title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Awareness",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Awareness_image(ctx context.Context, field graphql.CollectedField, obj *model.Awareness) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Awareness_image(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Image, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Awareness_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Awareness",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Awareness_content(ctx context.Context, field graphql.CollectedField, obj *model.Awareness) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Awareness_content(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Content, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Awareness_content(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Awareness",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Awareness_survey(ctx context.Context, field graphql.CollectedField, obj *model.Awareness) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Awareness_survey(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Survey, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Survey)
+	fc.Result = res
+	return ec.marshalOSurvey2ᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐSurvey(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Awareness_survey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Awareness",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Survey_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Survey_name(ctx, field)
+			case "questions":
+				return ec.fieldContext_Survey_questions(ctx, field)
+			case "results":
+				return ec.fieldContext_Survey_results(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Survey", field.Name)
 		},
 	}
 	return fc, nil
@@ -1861,6 +2135,61 @@ func (ec *executionContext) fieldContext_Query_ping(ctx context.Context, field g
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getAwarenesses(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getAwarenesses(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAwarenesses(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Awareness)
+	fc.Result = res
+	return ec.marshalNAwareness2ᚕᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐAwarenessᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getAwarenesses(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Awareness_id(ctx, field)
+			case "Title":
+				return ec.fieldContext_Awareness_Title(ctx, field)
+			case "image":
+				return ec.fieldContext_Awareness_image(ctx, field)
+			case "content":
+				return ec.fieldContext_Awareness_content(ctx, field)
+			case "survey":
+				return ec.fieldContext_Awareness_survey(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Awareness", field.Name)
 		},
 	}
 	return fc, nil
@@ -5208,6 +5537,53 @@ func (ec *executionContext) _AuthorizationResponse(ctx context.Context, sel ast.
 	return out
 }
 
+var awarenessImplementors = []string{"Awareness"}
+
+func (ec *executionContext) _Awareness(ctx context.Context, sel ast.SelectionSet, obj *model.Awareness) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, awarenessImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Awareness")
+		case "id":
+
+			out.Values[i] = ec._Awareness_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "Title":
+
+			out.Values[i] = ec._Awareness_Title(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "image":
+
+			out.Values[i] = ec._Awareness_image(ctx, field, obj)
+
+		case "content":
+
+			out.Values[i] = ec._Awareness_content(ctx, field, obj)
+
+		case "survey":
+
+			out.Values[i] = ec._Awareness_survey(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var createExerciceResponseImplementors = []string{"CreateExerciceResponse"}
 
 func (ec *executionContext) _CreateExerciceResponse(ctx context.Context, sel ast.SelectionSet, obj *model.CreateExerciceResponse) graphql.Marshaler {
@@ -5378,6 +5754,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_ping(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getAwarenesses":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAwarenesses(ctx, field)
 				return res
 			}
 
@@ -6071,6 +6467,60 @@ func (ec *executionContext) marshalNAuthResponse2ᚖgithubᚗcomᚋbrkssᚋgogql
 	return ec._AuthResponse(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNAwareness2ᚕᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐAwarenessᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Awareness) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAwareness2ᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐAwareness(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNAwareness2ᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐAwareness(ctx context.Context, sel ast.SelectionSet, v *model.Awareness) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Awareness(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -6716,6 +7166,13 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOSurvey2ᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐSurvey(ctx context.Context, sel ast.SelectionSet, v *model.Survey) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Survey(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOVerificationRequest2ᚖgithubᚗcomᚋbrkssᚋgogqlᚋgraphᚋmodelᚐVerificationRequest(ctx context.Context, v interface{}) (*model.VerificationRequest, error) {

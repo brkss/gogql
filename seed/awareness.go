@@ -1,8 +1,8 @@
 package seed
 
 import (
+	"context"
 	"database/sql"
-	"fmt"
 	"os"
 
 	db "github.com/brkss/gogql/db/sqlc"
@@ -23,6 +23,7 @@ var data = []Awareness{
 		Image: "",
 		FileName: "./awareness/anxiety.html",
 	},
+	/*
 	{
 		Title: "Depression",
 		Content: "",
@@ -35,6 +36,7 @@ var data = []Awareness{
 		Image: "",
 		FileName: "./awareness/mood_swing.html",
 	},
+	*/
 }
 
 func gatheData() ([]*db.CreateAwarenessContentParams){
@@ -63,5 +65,11 @@ func gatheData() ([]*db.CreateAwarenessContentParams){
 
 func SeedAwareness(store db.Store){
 	results := gatheData();
-	fmt.Println("res : ", results[0].Content);
+	for _, res := range results {
+		_, err := store.CreateAwarenessContent(context.Background(), *res);
+		if err != nil {
+			panic(err);
+		}
+	}
+	return;
 }
