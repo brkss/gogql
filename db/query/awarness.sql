@@ -1,13 +1,16 @@
 
 
 -- name: CreateAwarenessContent :one
-INSERT INTO "awareness"
-( id, content, image, survey_id )
-VALUES ( $1, $2, $3, $4 )
+INSERT INTO "awarness"
+( id, content, image, survey_id, title )
+VALUES ( $1, $2, $3, $4, $5 )
 RETURNING *;
 
 -- name: GetAwarnesses :many
-SELECT * FROM "awareness"
+SELECT id, title, survey_id FROM "awarness"
 ORDER BY id;
 
--- name: GetAwa
+-- name: GetAwarness :one 
+SELECT * FROM "awarness"
+WHERE id = $1
+LIMIT 1;
