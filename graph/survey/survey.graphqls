@@ -2,7 +2,7 @@
 type Survey {
 	id: ID!
 	name: String!
-	questions: [Question!]!
+	questions: [Question!]
 	results: [Result!]
 }
 
@@ -30,5 +30,6 @@ type Result {
 
 extend type Query {
 	getSurvey(id: String!): Survey!
+	survies: [Survey!]!
 }
 
